@@ -1,6 +1,5 @@
-import { connect } from "http2"
 import NextAuth from "next-auth"
- import Credentials from "next-auth/providers/credentials"
+import Credentials from "next-auth/providers/credentials"
 import connectDb from "./lib/db"
 import User from "./models/user.model"
 import bcrypt from "bcryptjs"
@@ -20,8 +19,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       placeholder: "*****",
     },
   },
- async authorize(credentials,request){
-    if(!credentials.email||!credentials.password){
+ async authorize(credentials){
+   if(!credentials.email||!credentials.password){
         throw Error("missing credentials")
     }
 
@@ -56,9 +55,9 @@ Google({
     async signIn({user,account}){
         if(account?.provider=="google"){
             await connectDb()
-            const dbUser=await User.findOne({email:user.email})
-            if(!dbUser){
-                await User.create({
+        let dbUser=await User.findOne({email:user.email})
+        if(!dbUser){
+          dbUser=await User.create({
                     name:user.name,
                     email:user.email
                 })
@@ -84,9 +83,9 @@ Google({
 },
    async session ({token,session}){
     if(session.user){
-         session.user.name=token.name,
-        session.user.id=token.id as string,
-        session.user.email=token.email as string,
+         session.user.name=token.name;
+        session.user.id=token.id as string;
+        session.user.email=token.email as string;
         session.user.role=token.role as string
     }
 
