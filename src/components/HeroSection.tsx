@@ -2,13 +2,18 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Bike, Bus, Car, Truck } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useRouter } from "next/navigation";
+
 
 const HeroSection = ({onAuthRequired}:{onAuthRequired?:()=>void}) => {
   const handleBookNow = () => {
     window.dispatchEvent(new Event("open-auth-modal"));
     onAuthRequired?.();
   };
-
+const {userData}=useSelector((state:RootState)=>state.user);
+const router=useRouter();
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div
@@ -19,13 +24,24 @@ const HeroSection = ({onAuthRequired}:{onAuthRequired?:()=>void}) => {
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-white font-extrabold text-4xlsm:text-5xl md:text-7xl"
-        >
-          Book any vehical
-        </motion.div>
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  className="
+    text-white
+    font-extrabold
+    text-3xl
+    sm:text-4xl
+    md:text-5xl
+    lg:text-6xl
+    xl:text-7xl
+    leading-tight
+    text-center
+    px-4
+  "
+>
+  Book Any Vehicle
+</motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
@@ -47,12 +63,14 @@ const HeroSection = ({onAuthRequired}:{onAuthRequired?:()=>void}) => {
           <Truck size={30} />
         </motion.div>
 
-        <button
+        <motion.button
+        whileHover={{scale:1.05}}
+        whileTap={{scale:0.95}}
           className="text-black px-10 py-4 bg-white rounded-full font-semibold shadow-xl mt-12"
-          onClick={handleBookNow}
+          onClick={()=>{!userData?onAuthRequired?.():router.push("/user/book")}}
         >
           Book Now
-        </button>
+        </motion.button>
       </div>
     </div>
   );
