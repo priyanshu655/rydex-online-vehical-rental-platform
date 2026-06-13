@@ -1,0 +1,161 @@
+'use client';
+
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { ArrowLeft, CircleDashed, FileCheck, UploadCloud } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+type docsType="aadhar"|"license"|"rc";
+const Page = () => {
+  const router = useRouter();
+const [docs,setDocs]=useState<Record<docsType,File|null>>({
+  aadhar:null,
+  license:null,
+  rc:null
+});
+const [loading,setLoading]=useState(false);
+const[error,setError]=useState("");
+const handleDocs=async()=>{
+  setLoading(true);
+  setError("");
+  try{
+    const formdata=new FormData();
+    if(!docs.aadhar||!docs.license||!docs.rc){
+  
+        setError("all documents are required");
+        setLoading(false);
+        return null;
+    
+    }
+    formdata.append("aadhar",docs.aadhar);
+    formdata.append("license",docs.license);
+    formdata.append("rc",docs.rc);
+const {data}=await axios.post("/api/partner/onboarding/documents",formdata);
+console.log(data);
+setLoading(false);
+
+  }catch(error:any){
+    setError(error.response.data.message ?? "something went wrong")
+    console.log(error)
+    setLoading(false);
+  }
+}
+
+const handleImage=(doc:docsType,file:File|null)=>{
+  if(!file){
+    return
+  }
+  setDocs((prev)=>({...prev,[doc]:file}));
+}
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-6">
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-lg bg-white rounded-3xl border border-gray-200 shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-5 sm:p-6"
+      >
+        <div className="relative text-center">
+          <button
+            onClick={() => router.back()}
+            className="absolute left-0 top-0 w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+          >
+            <ArrowLeft size={18} />
+          </button>
+
+          <p className="text-gray-500 font-medium text-sm">Step 2 of 3</p>
+
+          <h1 className="text-lg font-bold mt-1">Upload Documents</h1>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Required for verification
+          </p>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <motion.label
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center justify-between p-3 rounded-2xl border border-gray-200 cursor-pointer hover:border-black transition"
+          >
+            <div>
+              <p className="text-sm font-semibold">Aadhar / ID Proof</p>
+              <p className="text-xs text-gray-500">Government issued ID</p>
+            </div>
+
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-xs text-gray-400">Upload</span>
+
+              <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                <UploadCloud size={16} />
+              </div>
+            </div>
+                <input hidden type='file' accept='image/*,.pdf' onChange={(e)=>handleImage("aadhar",e.target.files?.[0]||null)}/>
+          </motion.label>
+
+          <motion.label
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center justify-between p-3 rounded-2xl border border-gray-200 cursor-pointer hover:border-black transition"
+          >
+            <div>
+              <p className="text-sm font-semibold">Driving License</p>
+              <p className="text-xs text-gray-500">Valid driving license</p>
+            </div>
+
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-xs text-gray-400">Upload</span>
+
+              <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                <UploadCloud size={16} />
+              </div>
+            </div>
+               <input hidden type='file' accept='image/*,.pdf' onChange={(e)=>handleImage("license",e.target.files?.[0]||null)}/>
+          </motion.label>
+
+          <motion.label
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center justify-between p-3 rounded-2xl border border-gray-200 cursor-pointer hover:border-black transition"
+          >
+            <div>
+              <p className="text-sm font-semibold">Vehicle RC</p>
+              <p className="text-xs text-gray-500">
+                Registration certificate
+              </p>
+            </div>
+
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-xs text-gray-400">Upload</span>
+
+              <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                <UploadCloud size={16} />
+              </div>
+
+            </div>
+               <input hidden type='file' accept='image/*,.pdf' onChange={(e)=>handleImage("rc",e.target.files?.[0]||null)}/>
+          </motion.label>
+
+
+
+        </div>
+
+        <div className="mt-4 flex items-start gap-2 text-xs text-gray-500">
+          <FileCheck size={16} className="mt-0.5 shrink-0" />
+          <p>
+            Documents are securely stored and manually verified by our team.
+          </p>
+        </div>
+{error && <p className='text-red-500 mt-4'>*{error}</p>}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          disabled={loading}
+          className="mt-5 w-full h-11 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 transition"
+          onClick={handleDocs}
+        >
+        {loading?<CircleDashed className='text-white animate-spin'/>:"Continue"}
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Page;

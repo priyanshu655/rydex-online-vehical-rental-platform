@@ -8,6 +8,8 @@ interface Iuser extends Document{
     isEmailVerified?:boolean;
     otp?:string;
     otpExpiresAt?:Date;
+    partnerOnboardingSteps:number;
+    mobileNumber?:string;
     createdAt:Date;
     updatedAt:Date;
 }
@@ -34,6 +36,16 @@ const userSchema=new mongoose.Schema<Iuser>({
         type:Boolean,
         default:false
     },
+    partnerOnboardingSteps:{
+        type:Number,
+        min:0,
+        max:8,
+        default:0
+    },
+    mobileNumber:{
+        type:String
+    }
+    ,
     otp:{
         type:String
     },
